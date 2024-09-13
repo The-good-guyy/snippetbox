@@ -1,0 +1,15 @@
+services:
+  # MySQL
+  db:
+    image: mysql:latest
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: snipetbox
+      MYSQL_USER: user
+      MYSQL_PASSWORD: 1234
+    ports:
+      - '3306:3306'
+#     volumes:
+#       - mysql_database:/var/lib/mysql/data/
+# volumes:
+#   mysql_database:
