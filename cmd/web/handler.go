@@ -1,6 +1,6 @@
 package main
 import (
-	"errors"
+"errors"
 "fmt"
 "net/http"
 "strconv"
@@ -12,6 +12,11 @@ func (app *application)home(w http.ResponseWriter, r *http.Request) {
 		http.NotFound(w, r)
 		return
 	}
+	snippets,err:= app.snippets.Latest()
+	if err!=nil{
+		app.serverError(w,err)
+		return
+	}
 	files:=[]string{"./ui/html/base.tmpl.html","./ui/html/pages/home.tmpl.html","./ui/html/partials/nav.tmpl.html"}
 
 	ts,err:= template.ParseFiles(files...)
@@ -19,7 +24,8 @@ func (app *application)home(w http.ResponseWriter, r *http.Request) {
 		app.serverError(w,err)
 		return
 	}
-	err = ts.ExecuteTemplate(w,"base",nil)
+	data:=&templateData{Snippets:snippets,}
+	err = ts.ExecuteTemplate(w,"base",data)
 	if err!= nil{
 		app.serverError(w,err)
 	}
@@ -39,13 +45,14 @@ func (app *application) snippetView(w http.ResponseWriter, r *http.Request) {
 		}
 		return
 	}
-	files:=[]string{"./ui/html/base.tmpl.html,'./ui/html/pages/view.tmpl.html","./ui/html/partials/nav.tmpl.html"}
+	files:=[]string{"./ui/html/base.tmpl.html","./ui/html/pages/view.tmpl.html","./ui/html/partials/nav.tmpl.html"}
 	ts,err := template.ParseFiles(files...)
 	if err!=nil{
 		app.serverError(w,err)
 		return
 	}
-	err = ts.ExecuteTemplate(w,"base",snippet)
+	data:=&templateData{Snippet:snippet}
+	err = ts.ExecuteTemplate(w,"base",data)
 	if err!=nil{
 		app.serverError(w,err)
 	}
