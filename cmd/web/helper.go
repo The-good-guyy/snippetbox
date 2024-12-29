@@ -1,9 +1,11 @@
 package main
+
 import (
-"fmt"
-"net/http"
-"runtime/debug"
+	"fmt"
+	"net/http"
+	"runtime/debug"
 )
+
 func (app *application) serverError(w http.ResponseWriter, err error) {
 	trace := fmt.Sprintf("%s\n%s", err.Error(), debug.Stack())
 	app.errorLog.Output(2, trace)
@@ -16,4 +18,17 @@ func (app *application) clientError(w http.ResponseWriter, status int) {
 
 func (app *application) notFound(w http.ResponseWriter) {
 	app.clientError(w, http.StatusNotFound)
+}
+func (app *application) render(w http.ResponseWriter, status int, page string, data *templateData) {
+	ts, ok := app.templateCache[page]
+	if !ok {
+		app.serverError(w, fmt.Errorf("The template %s does not exist", page))
+		return
+	}
+	w.Header().Set("Content-Type", "text/html")
+	err := ts.Execute(w, data)
+	if err != nil {
+		app.serverError(w, err)
+	}
+	w.WriteHeader(status)
 }
