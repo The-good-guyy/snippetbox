@@ -34,6 +34,7 @@ func main() {
 	}
 	defer db.Close()
 	templateCache, err := newTemplateCache()
+	print(templateCache)
 	if err != nil {
 		errorLog.Fatal(err)
 	}
